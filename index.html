@@ -559,6 +559,11 @@
                     <option value="">Оберіть тип події</option>
                     <option value="Розвідка">Розвідка</option>
                     <option value="Ураження">Ураження</option>
+                    <option value="Обрив">Обрив</option>
+                    <option value="Подавлення РЕБ">Подавлення РЕБ</option>
+                    <option value="Технічна несправність">Технічна несправність</option>
+                    <option value="Збиття">Збиття</option>
+                    <option value="Сіла батарея">Сіла батарея</option>
                     <option value="Інше">Інше</option>
                 </select>
             </div>
@@ -623,15 +628,15 @@
                             <option value="">-- Оберіть ціль --</option>
                             <option value="Піхота">Піхота</option>
                             <option value="Укриття">Укриття</option>
-                            <option value="Танки">Танки</option>
+                            <option value="Танк">Танк</option>
                             <option value="ББМ">ББМ</option>
                             <option value="РВіА">РВіА</option>
                             <option value="ППО">ППО</option>
                             <option value="АТ">АТ</option>
                             <option value="Спеціальна">Спеціальна</option>
                             <option value="БпЛА">БпЛА</option>
-                            <option value="Човни (катери)">Човни (катери)</option>
-                            <option value="Вертольоти">Вертольоти</option>
+                            <option value="Човен (катер)">Човен (катер)</option>
+                            <option value="Вертоліт">Вертоліт</option>
                             <option value="ПТЗ">ПТЗ</option>
                             <option value="Стрілецька зброя">Стрілецька зброя</option>
                             <option value="ТЗП">ТЗП</option>
@@ -672,7 +677,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.2 (FPV)</div>
+        <div>Ver: 0.0.1 (FPV)</div>
     </div>
 
     <script>
@@ -687,6 +692,7 @@
             const statusSelect = row.querySelector('.target-status');
             const suffix = row.querySelector('.suffix');
             const otherText = row.querySelector('.target-other-text');
+            const countInput = row.querySelector('.target-count');
             
             // Очищаємо попередні опції
             statusSelect.innerHTML = '<option value="">-- Статус --</option>';
@@ -712,6 +718,11 @@
             } else {
                 suffix.textContent = 'од.';
             }
+            
+            // Автоматично ставимо "1" якщо обрано ціль і поле порожнє
+            if (targetType && (!countInput.value || countInput.value === '0')) {
+                countInput.value = '1';
+            }
         }
         
         function addTargetRow() {
@@ -727,15 +738,15 @@
                     <option value="">-- Оберіть ціль --</option>
                     <option value="Піхота">Піхота</option>
                     <option value="Укриття">Укриття</option>
-                    <option value="Танки">Танки</option>
+                    <option value="Танк">Танк</option>
                     <option value="ББМ">ББМ</option>
                     <option value="РВіА">РВіА</option>
                     <option value="ППО">ППО</option>
                     <option value="АТ">АТ</option>
                     <option value="Спеціальна">Спеціальна</option>
                     <option value="БпЛА">БпЛА</option>
-                    <option value="Човни (катери)">Човни (катери)</option>
-                    <option value="Вертольоти">Вертольоти</option>
+                    <option value="Човен (катер)">Човен (катер)</option>
+                    <option value="Вертоліт">Вертоліт</option>
                     <option value="ПТЗ">ПТЗ</option>
                     <option value="Стрілецька зброя">Стрілецька зброя</option>
                     <option value="ТЗП">ТЗП</option>
@@ -789,11 +800,17 @@
             
             const bkType = row.querySelector('.bk-type').value;
             const otherText = row.querySelector('.bk-other-text');
+            const countInput = row.querySelector('.bk-count');
             
             if (bkType === 'Інше') {
                 otherText.style.display = 'block';
             } else {
                 otherText.style.display = 'none';
+            }
+            
+            // Автоматично ставимо "1" якщо обрано тип БК і поле порожнє
+            if (bkType && (!countInput.value || countInput.value === '0')) {
+                countInput.value = '1';
             }
         }
         
@@ -1093,7 +1110,13 @@
             const secondPilot = document.getElementById('secondPilot').value.trim();
             const navigator = document.getElementById('navigator').value.trim();
             const engineer = document.getElementById('engineer').value.trim();
-            const flightCount = events.length;
+            
+            // Рахуємо тільки Розвідка та Ураження як удари
+            const strikeEvents = ['Розвідка', 'Ураження'];
+            const lossEvents = ['Обрив', 'Подавлення РЕБ', 'Технічна несправність', 'Збиття', 'Сіла батарея'];
+            
+            const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
+            const droneLossCount = events.filter(e => lossEvents.includes(e.подія)).length;
             const timesText = declineTimes(flightCount);
             
             const now = new Date();
@@ -1232,8 +1255,8 @@
             
             // Виводимо інші цілі - тепер ПОВНИЙ ПЕРЕЛІК (якщо немає - ставимо "-")
             const allTargets = [
-                'Укриття', 'Танки', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 
-                'БпЛА', 'Човни (катери)', 'Вертольоти', 'ПТЗ', 'Стрілецька зброя', 'ТЗП', 'Ждун', 'Інше'
+                'Укриття', 'Танк', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 
+                'БпЛА', 'Човен (катер)', 'Вертоліт', 'ПТЗ', 'Стрілецька зброя', 'ТЗП', 'Ждун', 'Інше'
             ];
             
             allTargets.forEach(targetType => {
@@ -1310,6 +1333,15 @@
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: `    ОіВТ –`,
+                    font: "Times New Roman",
+                    size: 24
+                })],
+                spacing: { after: 120 }
+            }));
+            
+            paragraphs.push(new Paragraph({
+                children: [new TextRun({
+                    text: `    Дрони – ${droneLossCount > 0 ? droneLossCount : ''}`,
                     font: "Times New Roman",
                     size: 24
                 })],
@@ -1421,141 +1453,49 @@
                 spacing: { after: 240 }
             }));
             
-            // Групуємо події
-            const eventsByType = {};
-            events.forEach(event => {
-                const type = event.подія || 'Інше';
-                if (!eventsByType[type]) {
-                    eventsByType[type] = [];
-                }
-                eventsByType[type].push(event);
+            // Сортуємо всі події по часу
+            const sortedEvents = [...events].sort((a, b) => {
+                const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
+                const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
+                return timeA - timeB;
             });
             
-            // Виводимо події по групах
-            Object.keys(eventsByType).forEach(eventType => {
-                // Заголовок події (Bold + Underline)
-                paragraphs.push(new Paragraph({
-                    children: [new TextRun({ 
-                        text: `${eventType}:`, 
-                        bold: true, 
-                        underline: { type: UnderlineType.SINGLE },
-                        font: "Times New Roman", 
-                        size: 24 
-                    })],
-                    spacing: { after: 180 }
-                }));
+            // Виводимо всі події підряд
+            sortedEvents.forEach(event => {
+                const eventTypeLower = event.подія.toLowerCase();
+                const timeText = event.небо || '—';
                 
-                const groupBK = {};
-                
-                // Виводимо кожну подію
-                eventsByType[eventType].forEach(event => {
-                    const eventTypeLower = eventType.toLowerCase();
-                    const timeText = event.небо || '—';
-                    
-                    // Виводимо рядки для уражених цілей (якщо є)
-                    if (event.цілі && event.цілі.length > 0) {
-                        event.цілі.forEach(target => {
-                            const targetCoords = event.координати ? ` (${event.координати})` : '';
-                            paragraphs.push(new Paragraph({
-                                children: [new TextRun({ 
-                                    text: `${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}`, 
-                                    font: "Times New Roman", 
-                                    size: 24 
-                                })],
-                                spacing: { after: 120 }
-                            }));
-                        });
-                    } else {
-                        // Якщо цілей немає - виводимо базовий рядок події
-                        const squadText = event.квадрат ? ` ${event.квадрат}` : '';
-                        const coordsText = event.координати ? ` (${event.координати})` : '';
-                        
+                // Виводимо рядки для уражених цілей (якщо є)
+                if (event.цілі && event.цілі.length > 0) {
+                    event.цілі.forEach(target => {
+                        const targetCoords = event.координати ? ` (${event.координати})` : '';
                         paragraphs.push(new Paragraph({
                             children: [new TextRun({ 
-                                text: `${timeText} – ${eventTypeLower}${squadText} за координатами${coordsText}`, 
-                                font: "Times New Roman", 
-                                size: 24 
-                            })],
-                            spacing: { after: 120 }
-                        }));
-                    }
-                    
-                    // Збираємо БК для групи
-                    event.бк.forEach(bk => {
-                        if (groupBK[bk.type]) {
-                            groupBK[bk.type] += bk.count;
-                        } else {
-                            groupBK[bk.type] = bk.count;
-                        }
-                    });
-                });
-                
-                // Виводимо БК якщо є
-                if (Object.keys(groupBK).length > 0) {
-                    paragraphs.push(new Paragraph({
-                        children: [new TextRun({ 
-                            text: "Використано БК:", 
-                            bold: true, 
-                            underline: { type: UnderlineType.SINGLE },
-                            font: "Times New Roman", 
-                            size: 24 
-                        })],
-                        spacing: { after: 180 }
-                    }));
-                    
-                    Object.keys(groupBK).sort().forEach(bkType => {
-                        paragraphs.push(new Paragraph({
-                            children: [new TextRun({ 
-                                text: `    ${bkType} – ${groupBK[bkType]} шт.`, 
+                                text: `${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}`, 
                                 font: "Times New Roman", 
                                 size: 24 
                             })],
                             spacing: { after: 120 }
                         }));
                     });
-                }
-                
-                // Порожній рядок
-                paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
-            });
-            
-            // Загальна кількість БК
-            const totalBK = {};
-            events.forEach(event => {
-                event.бк.forEach(bk => {
-                    if (totalBK[bk.type]) {
-                        totalBK[bk.type] += bk.count;
-                    } else {
-                        totalBK[bk.type] = bk.count;
-                    }
-                });
-            });
-            
-            if (Object.keys(totalBK).length > 0) {
-                paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
-                
-                paragraphs.push(new Paragraph({
-                    children: [new TextRun({ 
-                        text: "Загальна кількість БК:", 
-                        bold: true, 
-                        underline: { type: UnderlineType.SINGLE },
-                        font: "Times New Roman", 
-                        size: 24 
-                    })],
-                    spacing: { after: 180 }
-                }));
-                
-                Object.keys(totalBK).sort().forEach(bkType => {
+                } else {
+                    // Якщо цілей немає - виводимо базовий рядок події
+                    const squadText = event.квадрат ? ` ${event.квадрат}` : '';
+                    const coordsText = event.координати ? ` (${event.координати})` : '';
+                    
                     paragraphs.push(new Paragraph({
                         children: [new TextRun({ 
-                            text: `    ${bkType} – ${totalBK[bkType]} шт.`, 
+                            text: `${timeText} – ${eventTypeLower}${squadText} за координатами${coordsText}`, 
                             font: "Times New Roman", 
                             size: 24 
                         })],
                         spacing: { after: 120 }
                     }));
-                });
-            }
+                }
+            });
+            
+            // Порожній рядок після всіх подій
+            paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
             
             // Створюємо документ
             const doc = new Document({
@@ -1601,7 +1541,13 @@
             
             const positionName = document.getElementById('positionName').value.trim() || '—';
             const positionCoords = document.getElementById('positionCoords').value.trim();
-            const flightCount = events.length;
+            
+            // Рахуємо тільки Розвідка та Ураження як удари
+            const strikeEvents = ['Розвідка', 'Ураження'];
+            const lossEvents = ['Обрив', 'Подавлення РЕБ', 'Технічна несправність', 'Збиття', 'Сіла батарея'];
+            
+            const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
+            const droneLossCount = events.filter(e => lossEvents.includes(e.подія)).length;
             const timesText = declineTimes(flightCount);
             
             const now = new Date();
@@ -1644,7 +1590,7 @@
             });
             
             // Рахуємо ОіВТ (техніка)
-            const techTypes = ['Танки', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 'БпЛА', 'Човни (катери)', 'Вертольоти', 'ПТЗ'];
+            const techTypes = ['Танк', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 'БпЛА', 'Човен (катер)', 'Вертоліт', 'ПТЗ'];
             let oivtTotal = 0;
             techTypes.forEach(type => {
                 oivtTotal += (targetSummary[type] || 0);
@@ -1717,6 +1663,7 @@
             html += `\n<p>7. Втрати:</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Особовий склад –</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ –</p>\n`;
+            html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Дрони – ${droneLossCount > 0 ? droneLossCount : ''}</p>\n`;
             
             // 8. Проблемні питання
             html += `\n<p>8. Проблемні питання:</p>\n`;
@@ -1764,68 +1711,38 @@
             html += `<p>&nbsp;</p>\n`;
             html += `<p>Протягом звітного періоду з 17:00 ${yesterdayStr}р. по 17:00 ${dateStr}р. було здійснено наступне:</p>\n`;
             
-            // Групуємо події за типом
-            const eventsByType = {};
-            events.forEach(event => {
-                const type = event.подія || 'Інше';
-                if (!eventsByType[type]) eventsByType[type] = [];
-                eventsByType[type].push(event);
+            // Сортуємо всі події по часу
+            const sortedEvents = [...events].sort((a, b) => {
+                const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
+                const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
+                return timeA - timeB;
             });
             
-            // Виводимо події по типах
-            Object.entries(eventsByType).forEach(([type, eventsOfType]) => {
-                html += `<p><b><u>${type}:</u></b></p>\n`;
+            // Виводимо всі події підряд
+            sortedEvents.forEach(event => {
+                const timeText = event.небо || event.скид || event.земля || '';
                 
-                eventsOfType.forEach(event => {
-                    const timeText = event.небо || event.скид || event.земля || '';
+                // Виводимо рядки для уражених цілей (якщо є)
+                if (event.цілі && event.цілі.length > 0) {
+                    const targetCoords = event.координати ? ` (${event.координати})` : '';
                     
-                    // Виводимо рядки для уражених цілей (якщо є)
-                    if (event.цілі && event.цілі.length > 0) {
-                        const targetCoords = event.координати ? ` (${event.координати})` : '';
-                        
-                        event.цілі.forEach(target => {
-                            html += `<p>${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}</p>\n`;
-                        });
-                    } else {
-                        // Якщо цілей немає - виводимо базовий рядок події
-                        let eventLine = timeText ? timeText + ' – ' : '';
-                        eventLine += type.toLowerCase();
-                        
-                        if (event.квадрат) {
-                            eventLine += ` ${event.квадрат}`;
-                        }
-                        if (event.координати) {
-                            eventLine += ` за координатами (${event.координати})`;
-                        }
-                        
-                        html += `<p>${eventLine}</p>\n`;
-                    }
-                });
-                
-                // БК для цієї групи подій
-                const bkForType = {};
-                eventsOfType.forEach(event => {
-                    if (event.бк && event.бк.length > 0) {
-                        event.бк.forEach(item => {
-                            bkForType[item.type] = (bkForType[item.type] || 0) + item.count;
-                        });
-                    }
-                });
-                
-                if (Object.keys(bkForType).length > 0) {
-                    html += `<p><b><u>Використано БК:</u></b></p>\n`;
-                    Object.entries(bkForType).forEach(([type, count]) => {
-                        html += `<p>${type} – ${count} шт.</p>\n`;
+                    event.цілі.forEach(target => {
+                        html += `<p>${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}</p>\n`;
                     });
+                } else {
+                    // Якщо цілей немає - виводимо базовий рядок події
+                    let eventLine = timeText ? timeText + ' – ' : '';
+                    eventLine += event.подія.toLowerCase();
+                    
+                    if (event.квадрат) {
+                        eventLine += ` ${event.квадрат}`;
+                    }
+                    if (event.координати) {
+                        eventLine += ` за координатами (${event.координати})`;
+                    }
+                    
+                    html += `<p>${eventLine}</p>\n`;
                 }
-                
-                html += `<p>&nbsp;</p>\n`;
-            });
-            
-            // Загальна кількість БК
-            html += `<p><b><u>Загальна кількість БК:</u></b></p>\n`;
-            Object.entries(bkSummary).forEach(([type, count]) => {
-                html += `<p>${type} – ${count} шт.</p>\n`;
             });
             
             html += `</body></html>`;
