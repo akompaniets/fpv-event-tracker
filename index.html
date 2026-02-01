@@ -611,6 +611,8 @@
                             <option value="Фугас">Фугас</option>
                             <option value="Кумуль">Кумуль</option>
                             <option value="Термобар">Термобар</option>
+                            <option value="Кумуль-уламок">Кумуль-уламок</option>
+                            <option value="СВП">СВП</option>
                             <option value="Інше">Інше</option>
                         </select>
                         <input type="text" class="bk-other-text" placeholder="Опис БК" style="display: none;">
@@ -1113,10 +1115,9 @@
             
             // Рахуємо тільки Розвідка та Ураження як удари
             const strikeEvents = ['Розвідка', 'Ураження'];
-            const lossEvents = ['Обрив', 'Подавлення РЕБ', 'Технічна несправність', 'Збиття', 'Сіла батарея'];
             
             const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
-            const droneLossCount = events.filter(e => lossEvents.includes(e.подія)).length;
+            const totalEventsCount = events.length; // Загальна кількість всіх подій для втрат дронів
             const timesText = declineTimes(flightCount);
             
             const now = new Date();
@@ -1341,7 +1342,7 @@
             
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
-                    text: `    Дрони – ${droneLossCount > 0 ? droneLossCount : ''}`,
+                    text: `    Дрони – ${totalEventsCount > 0 ? totalEventsCount : ''}`,
                     font: "Times New Roman",
                     size: 24
                 })],
@@ -1544,10 +1545,9 @@
             
             // Рахуємо тільки Розвідка та Ураження як удари
             const strikeEvents = ['Розвідка', 'Ураження'];
-            const lossEvents = ['Обрив', 'Подавлення РЕБ', 'Технічна несправність', 'Збиття', 'Сіла батарея'];
             
             const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
-            const droneLossCount = events.filter(e => lossEvents.includes(e.подія)).length;
+            const totalEventsCount = events.length; // Загальна кількість всіх подій для втрат дронів
             const timesText = declineTimes(flightCount);
             
             const now = new Date();
@@ -1663,7 +1663,7 @@
             html += `\n<p>7. Втрати:</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Особовий склад –</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ –</p>\n`;
-            html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Дрони – ${droneLossCount > 0 ? droneLossCount : ''}</p>\n`;
+            html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Дрони – ${totalEventsCount > 0 ? totalEventsCount : ''}</p>\n`;
             
             // 8. Проблемні питання
             html += `\n<p>8. Проблемні питання:</p>\n`;
