@@ -696,10 +696,8 @@
             const otherText = row.querySelector('.target-other-text');
             const countInput = row.querySelector('.target-count');
             
-            // Очищаємо попередні опції
             statusSelect.innerHTML = '<option value="">-- Статус --</option>';
             
-            // Показуємо/ховаємо поле для "Інше" та змінюємо layout
             if (targetType === 'Інше') {
                 row.classList.add('has-other');
                 otherText.style.display = 'block';
@@ -709,7 +707,6 @@
             }
             
             if (targetType === 'Піхота') {
-                // Для піхоти: 200, 300
                 statusSelect.innerHTML += '<option value="200">200</option>';
                 statusSelect.innerHTML += '<option value="300">300</option>';
                 suffix.textContent = 'чол.';
@@ -721,7 +718,6 @@
                 suffix.textContent = 'од.';
             }
             
-            // Автоматично ставимо "1" якщо обрано ціль і поле порожнє
             if (targetType && (!countInput.value || countInput.value === '0')) {
                 countInput.value = '1';
             }
@@ -810,7 +806,6 @@
                 otherText.style.display = 'none';
             }
             
-            // Автоматично ставимо "1" якщо обрано тип БК і поле порожнє
             if (bkType && (!countInput.value || countInput.value === '0')) {
                 countInput.value = '1';
             }
@@ -820,7 +815,6 @@
             const originalEventType = document.getElementById('field1').value;
             let eventType = originalEventType;
             
-            // Якщо "Інше" - використовуємо текст з поля
             if (eventType === 'Інше') {
                 const otherText = document.getElementById('eventOtherText').value.trim();
                 if (otherText) {
@@ -840,7 +834,6 @@
                 цілі: []
             };
             
-            // Збираємо цілі
             const targetRows = document.querySelectorAll('.target-row');
             targetRows.forEach(row => {
                 let type = row.querySelector('.target-type').value;
@@ -849,7 +842,6 @@
                 const suffix = row.querySelector('.suffix').textContent;
                 const otherText = row.querySelector('.target-other-text');
                 
-                // Якщо "Інше" - використовуємо текст з поля
                 if (type === 'Інше' && otherText && otherText.value.trim()) {
                     type = otherText.value.trim();
                 }
@@ -864,16 +856,13 @@
                 }
             });
             
-            // Квадрат та координати
             event.квадрат = document.getElementById('field2').value.trim();
             event.координати = document.getElementById('field3').value.trim();
             
-            // Якщо "Скид" порожній, використовуємо час з "Небо"
             if (!event.скид && event.небо) {
                 event.скид = event.небо;
             }
             
-            // Валідація часу
             if (event.небо && event.скид) {
                 const timeNebo = parseTime(event.небо);
                 const timeSkyd = parseTime(event.скид);
@@ -894,13 +883,11 @@
                 }
             }
             
-            // Збираємо БК (тільки один тип)
             const bkRow = document.querySelector('.bk-row');
             let bkType = bkRow.querySelector('.bk-type').value;
             const bkCount = parseInt(bkRow.querySelector('.bk-count').value) || 0;
             const otherText = bkRow.querySelector('.bk-other-text');
             
-            // Якщо "Інше" - використовуємо текст з поля
             if (bkType === 'Інше' && otherText && otherText.value.trim()) {
                 bkType = otherText.value.trim();
             }
@@ -909,7 +896,6 @@
                 event.бк.push({ type: bkType, count: bkCount });
             }
             
-            // Перевірка, чи хоча б одне поле заповнене
             const hasData = event.подія || event.квадрат || event.координати || 
                            event.небо || event.скид || event.земля || 
                            event.коментар || event.бк.length > 0;
@@ -944,7 +930,6 @@
         }
         
         function parseTime(timeStr) {
-            // Конвертує час "ЧЧ:ХХ" в хвилини для порівняння
             if (!timeStr || !timeStr.includes(':')) return 0;
             const [hours, minutes] = timeStr.split(':').map(Number);
             return hours * 60 + minutes;
@@ -966,27 +951,22 @@
             document.getElementById('field5').value = '';
             document.getElementById('field6').value = '';
             
-            // Скидаємо відображення локацій
             document.getElementById('singleLocation').classList.remove('hidden');
             
-            // Очищаємо БК
             const bkRow = document.querySelector('.bk-row');
             bkRow.querySelector('.bk-type').value = '';
             bkRow.querySelector('.bk-count').value = '';
             bkRow.querySelector('.bk-other-text').style.display = 'none';
             
-            // Очищаємо цілі - залишаємо тільки перший рядок
             const targetsSection = document.getElementById('targetsSection');
             const allTargetRows = targetsSection.querySelectorAll('.target-row');
             
-            // Видаляємо всі рядки крім першого
             allTargetRows.forEach((row, index) => {
                 if (index > 0) {
                     row.remove();
                 }
             });
             
-            // Очищаємо перший рядок цілей
             const firstTargetRow = targetsSection.querySelector('.target-row');
             firstTargetRow.querySelector('.target-type').value = '';
             firstTargetRow.querySelector('.target-status').value = '';
@@ -1023,7 +1003,6 @@
                         <div class="event-field"><strong>земля:</strong> ${event.земля || '—'}</div>
                         <div class="event-field"><strong>бк:</strong> ${formatBK(event.бк)}</div>`;
                 
-                // Відображення цілей
                 if (event.цілі && event.цілі.length > 0) {
                     const targetsStr = event.цілі.map(t => `${t.тип}: ${t.статус} - ${t.кількість} ${t.суфікс}`).join(', ');
                     html += `<div class="event-field"><strong>цілі:</strong> ${targetsStr}</div>`;
@@ -1033,7 +1012,6 @@
                 `;
             });
             
-            // Додаємо загальну статистику БК
             html += generateBKSummary();
             
             listDiv.innerHTML = html;
@@ -1047,7 +1025,6 @@
         function generateBKSummary() {
             const bkTotals = {};
             
-            // Підсумовуємо всі БК з усіх подій
             events.forEach(event => {
                 event.бк.forEach(item => {
                     if (bkTotals[item.type]) {
@@ -1058,7 +1035,6 @@
                 });
             });
             
-            // Якщо немає БК взагалі
             if (Object.keys(bkTotals).length === 0) {
                 return '';
             }
@@ -1066,7 +1042,6 @@
             let html = '<div class="summary-section">';
             html += '<h4>Загальна кількість БК:</h4>';
             
-            // Сортуємо за назвою
             const sortedTypes = Object.keys(bkTotals).sort();
             
             sortedTypes.forEach(type => {
@@ -1084,7 +1059,6 @@
                 return;
             }
             
-            // Спробуємо DOCX, якщо не вийде - HTML
             if (typeof docx !== 'undefined' || typeof window.docx !== 'undefined') {
                 saveToFileDOCX();
             } else {
@@ -1093,7 +1067,6 @@
         }
         
         async function saveToFileDOCX() {
-            // Перевіряємо чи завантажена бібліотека
             if (typeof docx === 'undefined' && typeof window.docx === 'undefined') {
                 console.log('DOCX бібліотека не завантажена, використовуємо HTML версію');
                 saveToFileHTML();
@@ -1105,7 +1078,6 @@
             try {
                 const { Document, Paragraph, TextRun, AlignmentType, UnderlineType, convertInchesToTwip } = docxLib;
             
-            // Отримуємо дані з форми
             const positionName = document.getElementById('positionName').value.trim() || '—';
             const positionCoords = document.getElementById('positionCoords').value.trim();
             const operator = document.getElementById('operator').value.trim();
@@ -1113,7 +1085,6 @@
             const navigator = document.getElementById('navigator').value.trim();
             const engineer = document.getElementById('engineer').value.trim();
             
-            // Рахуємо тільки Розвідка та Ураження як удари
             const strikeEvents = ['Розвідка', 'Ураження'];
             
             const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
@@ -1123,7 +1094,6 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '.');
             
-            // Вчорашня дата (мінус 1 день)
             const yesterday = new Date(now);
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '.');
@@ -1131,12 +1101,9 @@
             const flightsText = declineFlights(flightCount);
             const coordsText = positionCoords ? ` (${positionCoords})` : '';
             
-            // Створюємо параграфи документа
             const paragraphs = [];
             
-            // ===== НОВА СЕКЦІЯ: ПІДСУМКОВЕ ДОНЕСЕННЯ =====
             
-            // Заголовок
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "    ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 1 ББпC 1 ОШП Рота: FPV",
@@ -1147,7 +1114,6 @@
                 spacing: { after: 120 }
             }));
             
-            // 1. Час виконання завдання
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: `1. Час виконання завдання: 17:00 ${yesterdayStr} по 17:00 ${dateStr}.`,
@@ -1157,7 +1123,6 @@
                 spacing: { after: 120 }
             }));
             
-            // 2. Напрямок виконання завдання
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "2. Напрямок виконання завдання:",
@@ -1167,7 +1132,6 @@
                 spacing: { after: 120 }
             }));
             
-            // 3. Задіяно сил до виконання завдання
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "3. Задіяно сил до виконання завдання:",
@@ -1201,7 +1165,6 @@
                 spacing: { after: 120 },
             }));
             
-            // 4. Результати виконання завдання за добу
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "4. Результати виконання завдання за добу:",
@@ -1211,7 +1174,6 @@
                 spacing: { after: 120 }
             }));
             
-            // Збираємо цілі з усіх подій
             const targetSummary = {};
             const infantryStatus = { "200": 0, "300": 0 };
             
@@ -1219,7 +1181,6 @@
                 if (event.цілі && event.цілі.length > 0) {
                     event.цілі.forEach(target => {
                         if (target.тип === 'Піхота') {
-                            // Для піхоти рахуємо тільки уражених (200 і 300)
                             if (target.статус === '200') {
                                 infantryStatus["200"] += target.кількість;
                             } else if (target.статус === '300') {
@@ -1238,7 +1199,6 @@
                 }
             });
             
-            // Виводимо піхоту окремо
             if (infantryStatus["200"] > 0 || infantryStatus["300"] > 0) {
                 let infantryText = "Нанесено вогневе ураження місць скупчення о/с противника:";
                 if (infantryStatus["200"] > 0) infantryText += ` 200-${infantryStatus["200"]}`;
@@ -1254,14 +1214,12 @@
                 }));
             }
             
-            // Виводимо інші цілі - тепер ПОВНИЙ ПЕРЕЛІК (якщо немає - ставимо "-")
             const allTargets = [
                 'Укриття', 'Танк', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 
                 'БпЛА', 'Човен (катер)', 'Вертоліт', 'ПТЗ', 'Стрілецька зброя', 'ТЗП', 'Ждун', 'Інше'
             ];
             
             allTargets.forEach(targetType => {
-                // Знищено
                 const destroyedCount = targetSummary[targetType] || 0;
                 paragraphs.push(new Paragraph({
                     children: [new TextRun({
@@ -1273,7 +1231,6 @@
                 }));
             });
             
-            // Рахуємо події по типу
             const eventCounts = {};
             
             events.forEach(event => {
@@ -1281,7 +1238,6 @@
                 eventCounts[eventType] = (eventCounts[eventType] || 0) + 1;
             });
             
-            // 5. Витрати БК
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "5. Витрати БК:",
@@ -1291,7 +1247,6 @@
                 spacing: { after: 120 }
             }));
             
-            // Збираємо загальну кількість БК
             const bkTotals = {};
             events.forEach(event => {
                 if (event.бк && event.бк.length > 0) {
@@ -1312,7 +1267,6 @@
                 }));
             });
             
-            // 6. Втрати
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "6. Втрати:",
@@ -1349,7 +1303,6 @@
                 spacing: { after: 120 }
             }));
             
-            // 7. Проблемні питання
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "    7. Проблемні питання:",
@@ -1386,7 +1339,6 @@
                 spacing: { after: 120 }
             }));
             
-            // 8. Заплановані дії
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
                     text: "8. Заплановані дії:",
@@ -1396,13 +1348,10 @@
                 spacing: { after: 120 }
             }));
             
-            // Порожній рядок після підсумкового донесення
             paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
             paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
             
-            // ===== ОСНОВНИЙ ЗВІТ =====
             
-            // Шапка (Bold)
             paragraphs.push(new Paragraph({
                 children: [
                     new TextRun({
@@ -1415,7 +1364,6 @@
                 spacing: { after: 120 }
             }));
             
-            // Екіпаж (виводимо тільки заповнені поля)
             if (operator) {
                 paragraphs.push(new Paragraph({
                     children: [new TextRun({ text: `    оператор – ${formatCrewName(operator)}`, font: "Times New Roman", size: 24 })],
@@ -1440,11 +1388,9 @@
                     spacing: { after: 240 }
                 }));
             } else {
-                // Якщо жодного інженера немає, додаємо відступ
                 paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
             }
             
-            // Період (з вчорашнього дня по сьогодні)
             paragraphs.push(new Paragraph({
                 children: [new TextRun({ 
                     text: `Протягом звітного періоду з 17:00 ${yesterdayStr}р. по 17:00 ${dateStr}р. було здійснено наступне:`, 
@@ -1454,19 +1400,16 @@
                 spacing: { after: 240 }
             }));
             
-            // Сортуємо всі події по часу
             const sortedEvents = [...events].sort((a, b) => {
                 const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
                 const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
                 return timeA - timeB;
             });
             
-            // Виводимо всі події підряд
             sortedEvents.forEach(event => {
                 const eventTypeLower = event.подія.toLowerCase();
                 const timeText = event.небо || '—';
                 
-                // Виводимо рядки для уражених цілей (якщо є)
                 if (event.цілі && event.цілі.length > 0) {
                     event.цілі.forEach(target => {
                         const targetCoords = event.координати ? ` (${event.координати})` : '';
@@ -1480,7 +1423,6 @@
                         }));
                     });
                 } else {
-                    // Якщо цілей немає - виводимо базовий рядок події
                     const squadText = event.квадрат ? ` ${event.квадрат}` : '';
                     const coordsText = event.координати ? ` (${event.координати})` : '';
                     
@@ -1495,10 +1437,8 @@
                 }
             });
             
-            // Порожній рядок після всіх подій
             paragraphs.push(new Paragraph({ text: "", spacing: { after: 240 } }));
             
-            // Створюємо документ
             const doc = new Document({
                 sections: [{
                     properties: {
@@ -1515,11 +1455,9 @@
                 }]
             });
             
-            // Генеруємо та завантажуємо файл
             const blob = await docxLib.Packer.toBlob(doc);
             const positionFileName = positionName.replace(/[^a-zA-Zа-яА-ЯіІїЇєЄ0-9]/g, '_');
             
-            // Формат дати DD-MM-YYYY
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const year = now.getFullYear();
@@ -1543,7 +1481,6 @@
             const positionName = document.getElementById('positionName').value.trim() || '—';
             const positionCoords = document.getElementById('positionCoords').value.trim();
             
-            // Рахуємо тільки Розвідка та Ураження як удари
             const strikeEvents = ['Розвідка', 'Ураження'];
             
             const flightCount = events.filter(e => strikeEvents.includes(e.подія)).length;
@@ -1556,7 +1493,6 @@
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
             
-            // Рахуємо події по типу та піхоту
             const eventCounts = {};
             let infantryEventCount = 0;
             
@@ -1564,14 +1500,12 @@
                 const eventType = event.подія || '';
                 eventCounts[eventType] = (eventCounts[eventType] || 0) + 1;
                 
-                // Рахуємо події "Ураження" де є піхота
                 if (eventType === 'Ураження' && event.цілі) {
                     const hasInfantry = event.цілі.some(t => t.тип === 'Піхота');
                     if (hasInfantry) infantryEventCount++;
                 }
             });
             
-            // Збираємо цілі
             const targetSummary = {};
             const infantryKills = { "200": 0, "300": 0 };
             
@@ -1589,7 +1523,6 @@
                 }
             });
             
-            // Рахуємо ОіВТ (техніка)
             const techTypes = ['Танк', 'ББМ', 'РВіА', 'ППО', 'АТ', 'Спеціальна', 'БпЛА', 'Човен (катер)', 'Вертоліт', 'ПТЗ'];
             let oivtTotal = 0;
             techTypes.forEach(type => {
@@ -1597,7 +1530,6 @@
                 oivtTotal += (targetSummary[`Пошкоджено_${type}`] || 0);
             });
             
-            // Збираємо БК
             const bkSummary = {};
             events.forEach(event => {
                 if (event.бк && event.бк.length > 0) {
@@ -1607,7 +1539,6 @@
                 }
             });
             
-            // Генеруємо HTML
             let html = `<html><head><meta charset='utf-8'><style>
                 body { font-family: 'Times New Roman'; font-size: 12pt; }
                 p { margin: 2pt 0; }
@@ -1629,7 +1560,6 @@
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Нанесено вогневе ураження місць скупчення о/с противника – ${infantryEventCount || ''}</p>
 `;
 
-            // 5. Втрати противника (тільки якщо є)
             const hasLosses = (targetSummary['Укриття'] || targetSummary['Пошкоджено_Укриття'] || 
                              infantryKills['200'] || infantryKills['300'] || oivtTotal > 0);
             
@@ -1653,37 +1583,30 @@
                 }
             }
             
-            // 6. Витрати БК
             html += `\n<p>6. Витрати БК:</p>\n`;
             Object.entries(bkSummary).forEach(([type, count]) => {
                 html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;${type} – ${count} шт.</p>\n`;
             });
             
-            // 7. Втрати (завжди виводимо заголовок, рядки - тільки якщо є)
             html += `\n<p>7. Втрати:</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Особовий склад –</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ –</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Дрони – ${totalEventsCount > 0 ? totalEventsCount : ''}</p>\n`;
             
-            // 8. Проблемні питання
             html += `\n<p>8. Проблемні питання:</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;- Висока активність ворожих FPV на маршрутах</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;- Активність крил</p>\n`;
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;- Труднощі з логістикою</p>\n`;
             
-            // 9. Заплановані дії
             html += `\n<p>9. Заплановані дії:</p>\n`;
             html += `<p>&nbsp;</p>\n`;
             html += `<p>&nbsp;</p>\n`;
             
-            // ===== ДЕТАЛЬНА СЕКЦІЯ =====
             
-            // Шапка з ТЗП та екіпажем
             const coordsText = positionCoords ? ` (${positionCoords})` : '';
             
             html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Підрозділом 2 ББпС ТЗП FPV «${positionName}»${coordsText} було здійснено удари FPV-дронами по противнику – ${events.length} ${timesText}.</b></p>\n`;
             
-            // Екіпаж
             const operator = document.getElementById('operator').value.trim();
             const secondPilot = document.getElementById('secondPilot').value.trim();
             const navigator = document.getElementById('navigator').value.trim();
@@ -1711,18 +1634,15 @@
             html += `<p>&nbsp;</p>\n`;
             html += `<p>Протягом звітного періоду з 17:00 ${yesterdayStr}р. по 17:00 ${dateStr}р. було здійснено наступне:</p>\n`;
             
-            // Сортуємо всі події по часу
             const sortedEvents = [...events].sort((a, b) => {
                 const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
                 const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
                 return timeA - timeB;
             });
             
-            // Виводимо всі події підряд
             sortedEvents.forEach(event => {
                 const timeText = event.небо || event.скид || event.земля || '';
                 
-                // Виводимо рядки для уражених цілей (якщо є)
                 if (event.цілі && event.цілі.length > 0) {
                     const targetCoords = event.координати ? ` (${event.координати})` : '';
                     
@@ -1730,7 +1650,6 @@
                         html += `<p>${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}</p>\n`;
                     });
                 } else {
-                    // Якщо цілей немає - виводимо базовий рядок події
                     let eventLine = timeText ? timeText + ' – ' : '';
                     eventLine += event.подія.toLowerCase();
                     
@@ -1747,12 +1666,10 @@
             
             html += `</body></html>`;
             
-            // Завантажуємо файл
             const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             
-            // Формат дати DD-MM-YYYY
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const year = now.getFullYear();
@@ -1762,49 +1679,39 @@
             link.click();
         }
         
-        // Фокус на перше поле при завантаженні
         window.onload = function() {
-            // Не встановлюємо автофокус - дозволяємо користувачу самостійно обрати поле
             
-            // Додаємо автоформатування для полів часу
             const timeFields = ['field4', 'field5', 'field6'];
             timeFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
                 
                 field.addEventListener('input', function(e) {
-                    // Використовуємо setTimeout для мобільних пристроїв
                     setTimeout(() => formatTimeInput(field), 0);
                 });
                 
                 field.addEventListener('keydown', handleTimeBackspace);
             });
             
-            // Додаємо автоформатування для координат
             const coordFields = ['positionCoords', 'field3'];
             coordFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
                 
                 field.addEventListener('input', function(e) {
-                    // Використовуємо setTimeout для мобільних пристроїв
                     setTimeout(() => formatCoordinatesInput(field), 0);
                 });
             });
         };
         
         function formatTimeInputDirect(field) {
-            // Зберігаємо позицію курсора
             let cursorPos = field.selectionStart;
             let oldValue = field.value;
             
-            // Видаляємо все крім цифр
             let digits = field.value.replace(/\D/g, '');
             
-            // Обмежуємо до 4 цифр
             if (digits.length > 4) {
                 digits = digits.slice(0, 4);
             }
             
-            // Форматуємо
             let formatted = '';
             if (digits.length >= 1) {
                 formatted = digits.slice(0, 2);
@@ -1813,17 +1720,14 @@
                 formatted = digits.slice(0, 2) + ':' + digits.slice(2, 4);
             }
             
-            // Встановлюємо нове значення
             field.value = formatted;
             
-            // Корегуємо позицію курсора
             if (oldValue.length < formatted.length && cursorPos === 2) {
                 field.setSelectionRange(3, 3); // Після двокрапки
             }
         }
         
         function formatCoordinatesInputDirect(field) {
-            // Використовуємо строгу валідацію з маскою
             formatCoordinatesInput(field);
         }
         
@@ -1835,12 +1739,10 @@
                 return;
             }
             
-            // Обмежуємо 4 цифрами
             if (value.length > 4) {
                 value = value.slice(0, 4);
             }
             
-            // Валідація годин (00-23)
             if (value.length >= 2) {
                 let hours = parseInt(value.slice(0, 2));
                 if (hours > 23) {
@@ -1849,7 +1751,6 @@
                 value = hours.toString().padStart(2, '0') + value.slice(2);
             }
             
-            // Валідація хвилин (00-59)
             if (value.length >= 4) {
                 let hours = value.slice(0, 2);
                 let minutes = parseInt(value.slice(2, 4));
@@ -1859,7 +1760,6 @@
                 value = hours + minutes.toString().padStart(2, '0');
             }
             
-            // Додаємо двокрапку після 2 цифр
             if (value.length >= 3) {
                 value = value.slice(0, 2) + ':' + value.slice(2);
             }
@@ -1868,7 +1768,6 @@
         }
         
         function handleTimeBackspace(e) {
-            // Якщо натиснуто Backspace і курсор після двокрапки, видаляємо двокрапку
             if (e.key === 'Backspace') {
                 const value = e.target.value;
                 const cursorPos = e.target.selectionStart;
@@ -1881,7 +1780,6 @@
         }
         
         function formatCoordinatesInput(eventOrField) {
-            // Підтримка як event object, так і прямого посилання на field
             const field = eventOrField.target ? eventOrField.target : eventOrField;
             
             let value = field.value.replace(/\s/g, ''); // Видаляємо пробіли
@@ -1891,37 +1789,30 @@
                 return;
             }
             
-            // Валідація по маску: 37T BN 98978 89504
-            // Позиції: ДД Б ББ ДДДДД ДДДДД (Д=digit, Б=letter)
             let formatted = '';
             
             for (let i = 0; i < value.length && i < 15; i++) {
                 const char = value[i].toUpperCase();
                 
                 if (i < 2) {
-                    // Позиції 0-1: тільки цифри
                     if (/\d/.test(char)) {
                         formatted += char;
                     }
                 } else if (i === 2) {
-                    // Позиція 2: тільки буква
                     if (/[A-Z]/.test(char)) {
                         formatted += char;
                     }
                 } else if (i >= 3 && i < 5) {
-                    // Позиції 3-4: тільки букви
                     if (/[A-Z]/.test(char)) {
                         formatted += char;
                     }
                 } else {
-                    // Позиції 5-14: тільки цифри
                     if (/\d/.test(char)) {
                         formatted += char;
                     }
                 }
             }
             
-            // Додаємо пробіли: 37T BN 98978 89504
             let result = '';
             if (formatted.length > 0) {
                 result = formatted.slice(0, 3); // 37T
@@ -1943,22 +1834,18 @@
             const lastDigit = count % 10;
             const lastTwoDigits = count % 100;
             
-            // 11-14 завжди "польотів"
             if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
                 return 'польотів';
             }
             
-            // 1 політ, 21 політ, 31 політ...
             if (lastDigit === 1) {
                 return 'політ';
             }
             
-            // 2, 3, 4 польоти
             if (lastDigit >= 2 && lastDigit <= 4) {
                 return 'польоти';
             }
             
-            // 5, 6, 7, 8, 9, 0 польотів
             return 'польотів';
         }
         
@@ -1966,22 +1853,18 @@
             const lastDigit = count % 10;
             const lastTwoDigits = count % 100;
             
-            // 11-14 завжди "разів"
             if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
                 return 'разів';
             }
             
-            // 1 раз, 21 раз, 31 раз...
             if (lastDigit === 1) {
                 return 'раз';
             }
             
-            // 2, 3, 4 рази
             if (lastDigit >= 2 && lastDigit <= 4) {
                 return 'рази';
             }
             
-            // 5, 6, 7, 8, 9, 0 разів
             return 'разів';
         }
     </script>
