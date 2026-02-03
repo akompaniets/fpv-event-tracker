@@ -679,7 +679,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.0.1 (FPV)</div>
+        <div>Ver: 0.0.3 (FPV)</div>
     </div>
 
     <script>
@@ -1407,15 +1407,18 @@
             });
             
             sortedEvents.forEach(event => {
-                const eventTypeLower = event.подія.toLowerCase();
+                let eventTypeLower = event.подія.toLowerCase();
+                if (eventTypeLower === 'розвідка') {
+                    eventTypeLower = 'проведення розвідки';
+                }
                 const timeText = event.небо || '—';
                 
                 if (event.цілі && event.цілі.length > 0) {
                     event.цілі.forEach(target => {
-                        const targetCoords = event.координати ? ` (${event.координати})` : '';
+                        const targetCoords = event.координати ? ` за координатами (${event.координати})` : ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
                         paragraphs.push(new Paragraph({
                             children: [new TextRun({ 
-                                text: `${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}`, 
+                                text: `${timeText} – ураження ${target.тип.toLowerCase()}${targetCoords}`, 
                                 font: "Times New Roman", 
                                 size: 24 
                             })],
@@ -1423,12 +1426,11 @@
                         }));
                     });
                 } else {
-                    const squadText = event.квадрат ? ` ${event.квадрат}` : '';
-                    const coordsText = event.координати ? ` (${event.координати})` : '';
+                    const coordsText = event.координати ? ` за координатами (${event.координати})` : ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
                     
                     paragraphs.push(new Paragraph({
                         children: [new TextRun({ 
-                            text: `${timeText} – ${eventTypeLower}${squadText} за координатами${coordsText}`, 
+                            text: `${timeText} – ${eventTypeLower}${coordsText}`, 
                             font: "Times New Roman", 
                             size: 24 
                         })],
@@ -1642,22 +1644,25 @@
             
             sortedEvents.forEach(event => {
                 const timeText = event.небо || event.скид || event.земля || '';
+                let eventTypeLower = event.подія.toLowerCase();
+                if (eventTypeLower === 'розвідка') {
+                    eventTypeLower = 'проведення розвідки';
+                }
                 
                 if (event.цілі && event.цілі.length > 0) {
-                    const targetCoords = event.координати ? ` (${event.координати})` : '';
+                    const targetCoords = event.координати ? ` за координатами (${event.координати})` : ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
                     
                     event.цілі.forEach(target => {
-                        html += `<p>${timeText} – ураження ${target.тип.toLowerCase()} за координатами${targetCoords}</p>\n`;
+                        html += `<p>${timeText} – ураження ${target.тип.toLowerCase()}${targetCoords}</p>\n`;
                     });
                 } else {
                     let eventLine = timeText ? timeText + ' – ' : '';
-                    eventLine += event.подія.toLowerCase();
+                    eventLine += eventTypeLower;
                     
-                    if (event.квадрат) {
-                        eventLine += ` ${event.квадрат}`;
-                    }
                     if (event.координати) {
                         eventLine += ` за координатами (${event.координати})`;
+                    } else {
+                        eventLine += ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
                     }
                     
                     html += `<p>${eventLine}</p>\n`;
