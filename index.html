@@ -679,7 +679,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.0.3 (FPV)</div>
+        <div>Ver: 0.0.4 (FPV)</div>
     </div>
 
     <script>
@@ -1150,7 +1150,7 @@
             }));
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
-                    text: "    БпЛА – 1",
+                    text: `    БпЛА – ${totalEventsCount}`,
                     font: "Times New Roman",
                     size: 24
                 })],
@@ -1199,10 +1199,22 @@
                 }
             });
             
+            paragraphs.push(new Paragraph({
+                children: [new TextRun({
+                    text: "5. Втрати противника:",
+                    font: "Times New Roman",
+                    size: 24
+                })],
+                spacing: { after: 120 }
+            }));
+            
             if (infantryStatus["200"] > 0 || infantryStatus["300"] > 0) {
-                let infantryText = "Нанесено вогневе ураження місць скупчення о/с противника:";
-                if (infantryStatus["200"] > 0) infantryText += ` 200-${infantryStatus["200"]}`;
-                if (infantryStatus["300"] > 0) infantryText += ` 300-${infantryStatus["300"]}`;
+                let infantryText = "    ";
+                if (infantryStatus["200"] > 0) infantryText += `О\\c противника 200 – ${infantryStatus["200"]}`;
+                if (infantryStatus["300"] > 0) {
+                    if (infantryStatus["200"] > 0) infantryText += "\n    ";
+                    infantryText += `О\\c противника 300 – ${infantryStatus["300"]}`;
+                }
                 
                 paragraphs.push(new Paragraph({
                     children: [new TextRun({
@@ -1221,14 +1233,16 @@
             
             allTargets.forEach(targetType => {
                 const destroyedCount = targetSummary[targetType] || 0;
-                paragraphs.push(new Paragraph({
-                    children: [new TextRun({
-                        text: `    ${targetType} – ${destroyedCount > 0 ? destroyedCount : ''}`,
-                        font: "Times New Roman",
-                        size: 24
-                    })],
-                    spacing: { after: 120 }
-                }));
+                if (destroyedCount > 0) {
+                    paragraphs.push(new Paragraph({
+                        children: [new TextRun({
+                            text: `    ${targetType} – ${destroyedCount}`,
+                            font: "Times New Roman",
+                            size: 24
+                        })],
+                        spacing: { after: 120 }
+                    }));
+                }
             });
             
             const eventCounts = {};
@@ -1554,35 +1568,30 @@
 
 <p>3. Задіяно сил до виконання завдання:</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Екіпажів – 1</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;БпЛА – 1</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;Кількість вильотів – ${events.length}</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;БпЛА – ${totalEventsCount}</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;Кількість вильотів – ${flightCount}</p>
 
 <p>4. Результати виконання завдання за добу:</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Розвідка – ${eventCounts['Розвідка'] || ''}</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Нанесено вогневе ураження місць скупчення о/с противника – ${infantryEventCount || ''}</p>
 `;
 
-            const hasLosses = (targetSummary['Укриття'] || targetSummary['Пошкоджено_Укриття'] || 
-                             infantryKills['200'] || infantryKills['300'] || oivtTotal > 0);
+            html += `\n<p>5. Втрати противника:</p>\n`;
             
-            if (hasLosses) {
-                html += `\n<p>5. Втрати противника:</p>\n`;
-                
-                if (targetSummary['Укриття']) {
-                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Знищено укриття – ${targetSummary['Укриття']}</p>\n`;
-                }
-                if (targetSummary['Пошкоджено_Укриття']) {
-                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Пошкоджено укриття – ${targetSummary['Пошкоджено_Укриття']}</p>\n`;
-                }
-                if (infantryKills['200']) {
-                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;О\\c противника 200 – ${infantryKills['200']}</p>\n`;
-                }
-                if (infantryKills['300']) {
-                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;О\\c противника 300 – ${infantryKills['300']}</p>\n`;
-                }
-                if (oivtTotal > 0) {
-                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ – ${oivtTotal}</p>\n`;
-                }
+            if (infantryKills['200']) {
+                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;О\\c противника 200 – ${infantryKills['200']}</p>\n`;
+            }
+            if (infantryKills['300']) {
+                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;О\\c противника 300 – ${infantryKills['300']}</p>\n`;
+            }
+            if (targetSummary['Укриття']) {
+                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Знищено укриття – ${targetSummary['Укриття']}</p>\n`;
+            }
+            if (targetSummary['Пошкоджено_Укриття']) {
+                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Пошкоджено укриття – ${targetSummary['Пошкоджено_Укриття']}</p>\n`;
+            }
+            if (oivtTotal > 0) {
+                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ – ${oivtTotal}</p>\n`;
             }
             
             html += `\n<p>6. Витрати БК:</p>\n`;
