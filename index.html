@@ -679,7 +679,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.0.4 (FPV)</div>
+        <div>Ver: 0.0.5</div>
     </div>
 
     <script>
@@ -1116,7 +1116,7 @@
             
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
-                    text: `1. Час виконання завдання: 17:00 ${yesterdayStr} по 17:00 ${dateStr}.`,
+                    text: `1. Час виконання завдання: 16:00 ${yesterdayStr} по 16:00 ${dateStr}.`,
                     font: "Times New Roman",
                     size: 24
                 })],
@@ -1158,7 +1158,7 @@
             }));
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
-                    text: `    Кількість вильотів – ${flightCount}`,
+                    text: `    Кількість вильотів – ${totalEventsCount}`,
                     font: "Times New Roman",
                     size: 24
                 })],
@@ -1237,6 +1237,34 @@
                     paragraphs.push(new Paragraph({
                         children: [new TextRun({
                             text: `    ${targetType} – ${destroyedCount}`,
+                            font: "Times New Roman",
+                            size: 24
+                        })],
+                        spacing: { after: 120 }
+                    }));
+                }
+            });
+            
+            Object.keys(targetSummary).forEach(targetKey => {
+                if (!allTargets.includes(targetKey) && !targetKey.startsWith('Пошкоджено ')) {
+                    const count = targetSummary[targetKey];
+                    paragraphs.push(new Paragraph({
+                        children: [new TextRun({
+                            text: `    ${targetKey} – ${count}`,
+                            font: "Times New Roman",
+                            size: 24
+                        })],
+                        spacing: { after: 120 }
+                    }));
+                }
+            });
+            
+            Object.keys(targetSummary).forEach(targetKey => {
+                if (targetKey.startsWith('Пошкоджено ') && !allTargets.some(t => targetKey === `Пошкоджено ${t}`)) {
+                    const count = targetSummary[targetKey];
+                    paragraphs.push(new Paragraph({
+                        children: [new TextRun({
+                            text: `    ${targetKey} – ${count}`,
                             font: "Times New Roman",
                             size: 24
                         })],
@@ -1407,7 +1435,7 @@
             
             paragraphs.push(new Paragraph({
                 children: [new TextRun({ 
-                    text: `Протягом звітного періоду з 17:00 ${yesterdayStr}р. по 17:00 ${dateStr}р. було здійснено наступне:`, 
+                    text: `Протягом звітного періоду з 16:00 ${yesterdayStr}р. по 16:00 ${dateStr}р. було здійснено наступне:`, 
                     font: "Times New Roman", 
                     size: 24
                 })],
@@ -1425,7 +1453,7 @@
                 if (eventTypeLower === 'розвідка') {
                     eventTypeLower = 'проведення розвідки';
                 }
-                const timeText = event.небо || '—';
+                const timeText = event.небо || 'хх:хх';
                 
                 if (event.цілі && event.цілі.length > 0) {
                     event.цілі.forEach(target => {
@@ -1562,14 +1590,14 @@
             
 <p><b>ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 1 ББпC 1 ОШП Рота: FPV</b></p>
 
-<p>1. Час виконання завдання: 17:00 ${yesterdayStr} по 17:00 ${dateStr}.</p>
+<p>1. Час виконання завдання: 16:00 ${yesterdayStr} по 16:00 ${dateStr}.</p>
 
 <p>2. Напрямок виконання завдання:</p>
 
 <p>3. Задіяно сил до виконання завдання:</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Екіпажів – 1</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;БпЛА – ${totalEventsCount}</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;Кількість вильотів – ${flightCount}</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;Кількість вильотів – ${totalEventsCount}</p>
 
 <p>4. Результати виконання завдання за добу:</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Розвідка – ${eventCounts['Розвідка'] || ''}</p>
@@ -1584,15 +1612,16 @@
             if (infantryKills['300']) {
                 html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;О\\c противника 300 – ${infantryKills['300']}</p>\n`;
             }
-            if (targetSummary['Укриття']) {
-                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Знищено укриття – ${targetSummary['Укриття']}</p>\n`;
-            }
-            if (targetSummary['Пошкоджено_Укриття']) {
-                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Пошкоджено укриття – ${targetSummary['Пошкоджено_Укриття']}</p>\n`;
-            }
-            if (oivtTotal > 0) {
-                html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;ОіВТ – ${oivtTotal}</p>\n`;
-            }
+            
+            Object.keys(targetSummary).forEach(key => {
+                const count = targetSummary[key];
+                if (key.startsWith('Пошкоджено_')) {
+                    const targetName = key.replace('Пошкоджено_', '');
+                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;Пошкоджено ${targetName} – ${count}</p>\n`;
+                } else {
+                    html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;${key} – ${count}</p>\n`;
+                }
+            });
             
             html += `\n<p>6. Витрати БК:</p>\n`;
             Object.entries(bkSummary).forEach(([type, count]) => {
@@ -1643,7 +1672,7 @@
             if (engineer) html += `<p>&nbsp;&nbsp;&nbsp;&nbsp;інженер БК – ${formatCrewName(engineer)}</p>\n`;
             
             html += `<p>&nbsp;</p>\n`;
-            html += `<p>Протягом звітного періоду з 17:00 ${yesterdayStr}р. по 17:00 ${dateStr}р. було здійснено наступне:</p>\n`;
+            html += `<p>Протягом звітного періоду з 16:00 ${yesterdayStr}р. по 16:00 ${dateStr}р. було здійснено наступне:</p>\n`;
             
             const sortedEvents = [...events].sort((a, b) => {
                 const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
@@ -1652,7 +1681,7 @@
             });
             
             sortedEvents.forEach(event => {
-                const timeText = event.небо || event.скид || event.земля || '';
+                const timeText = event.небо || event.скид || event.земля || 'хх:хх';
                 let eventTypeLower = event.подія.toLowerCase();
                 if (eventTypeLower === 'розвідка') {
                     eventTypeLower = 'проведення розвідки';
