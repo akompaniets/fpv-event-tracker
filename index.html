@@ -679,7 +679,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.0.5</div>
+        <div>Ver: 0.0.6</div>
     </div>
 
     <script>
@@ -846,10 +846,10 @@
                     type = otherText.value.trim();
                 }
                 
-                if (type && status && count > 0) {
+                if (type && count > 0) {
                     event.цілі.push({
                         тип: type,
-                        статус: status,
+                        статус: status || '',
                         кількість: count,
                         суфікс: suffix
                     });
@@ -1458,9 +1458,10 @@
                 if (event.цілі && event.цілі.length > 0) {
                     event.цілі.forEach(target => {
                         const targetCoords = event.координати ? ` за координатами (${event.координати})` : ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
+                        const declinedTarget = declineTarget(target.тип);
                         paragraphs.push(new Paragraph({
                             children: [new TextRun({ 
-                                text: `${timeText} – ураження ${target.тип.toLowerCase()}${targetCoords}`, 
+                                text: `${timeText} – ураження ${declinedTarget}${targetCoords}`, 
                                 font: "Times New Roman", 
                                 size: 24 
                             })],
@@ -1691,7 +1692,8 @@
                     const targetCoords = event.координати ? ` за координатами (${event.координати})` : ' за координатами (ХХХ ХХ ХХХХХ ХХХХХ)';
                     
                     event.цілі.forEach(target => {
-                        html += `<p>${timeText} – ураження ${target.тип.toLowerCase()}${targetCoords}</p>\n`;
+                        const declinedTarget = declineTarget(target.тип);
+                        html += `<p>${timeText} – ураження ${declinedTarget}${targetCoords}</p>\n`;
                     });
                 } else {
                     let eventLine = timeText ? timeText + ' – ' : '';
@@ -1825,7 +1827,19 @@
         function formatCoordinatesInput(eventOrField) {
             const field = eventOrField.target ? eventOrField.target : eventOrField;
             
-            let value = field.value.replace(/\s/g, ''); // Видаляємо пробіли
+            const cyrToLat = {
+                'А': 'A', 'В': 'B', 'С': 'C', 'Е': 'E', 'Н': 'H', 'К': 'K', 
+                'М': 'M', 'О': 'O', 'Р': 'P', 'Т': 'T', 'Х': 'X', 'У': 'Y',
+                'а': 'A', 'в': 'B', 'с': 'C', 'е': 'E', 'н': 'H', 'к': 'K',
+                'м': 'M', 'о': 'O', 'р': 'P', 'т': 'T', 'х': 'X', 'у': 'Y'
+            };
+            
+            let rawValue = field.value;
+            for (let cyr in cyrToLat) {
+                rawValue = rawValue.replace(new RegExp(cyr, 'g'), cyrToLat[cyr]);
+            }
+            
+            let value = rawValue.replace(/\s/g, '');
             
             if (value.length === 0) {
                 field.value = '';
@@ -1858,16 +1872,16 @@
             
             let result = '';
             if (formatted.length > 0) {
-                result = formatted.slice(0, 3); // 37T
+                result = formatted.slice(0, 3);
             }
             if (formatted.length >= 4) {
-                result += ' ' + formatted.slice(3, 5); // BN
+                result += ' ' + formatted.slice(3, 5);
             }
             if (formatted.length >= 6) {
-                result += ' ' + formatted.slice(5, 10); // 98978
+                result += ' ' + formatted.slice(5, 10);
             }
             if (formatted.length >= 11) {
-                result += ' ' + formatted.slice(10, 15); // 89504
+                result += ' ' + formatted.slice(10, 15);
             }
             
             field.value = result;
@@ -1909,6 +1923,30 @@
             }
             
             return 'разів';
+        }
+        
+        function declineTarget(targetName) {
+            const declensions = {
+                'піхота': 'піхоти',
+                'укриття': 'укриття',
+                'танк': 'танка',
+                'ббм': 'ббм',
+                'рвіа': 'рвіа',
+                'ппо': 'ппо',
+                'ат': 'ат',
+                'спеціальна': 'спеціальної',
+                'бпла': 'бпла',
+                'човен (катер)': 'човна (катера)',
+                'вертоліт': 'вертольота',
+                'птз': 'птз',
+                'стрілецька зброя': 'стрілецької зброї',
+                'тзп': 'тзп',
+                'ждун': 'ждуна',
+                'інше': 'іншого'
+            };
+            
+            const lowerTarget = targetName.toLowerCase();
+            return declensions[lowerTarget] || targetName.toLowerCase();
         }
     </script>
 </body>
