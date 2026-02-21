@@ -559,8 +559,6 @@
                     <option value="">Оберіть тип події</option>
                     <option value="Розвідка">Розвідка</option>
                     <option value="Ураження">Ураження</option>
-                    <option value="На заборону">На заборону</option>
-                    <option value="Не розрив">Не розрив</option>
                     <option value="Обрив">Обрив</option>
                     <option value="Подавлення РЕБ">Подавлення РЕБ</option>
                     <option value="Технічна несправність">Технічна несправність</option>
@@ -589,18 +587,8 @@
             </div>
             
             <div class="form-group">
-                <label>Небо</label>
+                <label>Час ураження</label>
                 <input type="text" id="field4" placeholder="ЧЧ:ХХ" maxlength="5" inputmode="numeric" oninput="formatTimeInputDirect(this)">
-            </div>
-            
-            <div class="form-group">
-                <label>Скид</label>
-                <input type="text" id="field5" placeholder="ЧЧ:ХХ" maxlength="5" inputmode="numeric" oninput="formatTimeInputDirect(this)">
-            </div>
-            
-            <div class="form-group">
-                <label>Земля</label>
-                <input type="text" id="field6" placeholder="ЧЧ:ХХ" maxlength="5" inputmode="numeric" oninput="formatTimeInputDirect(this)">
             </div>
             
             <div class="form-group">
@@ -611,9 +599,7 @@
                             <option value="">-- Оберіть тип БК --</option>
                             <option value="Уламок">Уламок</option>
                             <option value="Фугас">Фугас</option>
-                            <option value="Запальничка">Запальничка</option>
                             <option value="Кумуль">Кумуль</option>
-                            <option value="Кумуль-Фугас">Кумуль-Фугас</option>
                             <option value="Термобар">Термобар</option>
                             <option value="Кумуль-уламок">Кумуль-уламок</option>
                             <option value="СВП">СВП</option>
@@ -683,7 +669,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; color: #999; font-size: 10px;">
         <div>Powered by CHEF</div>
-        <div>Ver: 0.0.7</div>
+        <div>Ver: 0.0.8</div>
     </div>
 
     <script>
@@ -832,8 +818,6 @@
             const event = {
                 подія: eventType,
                 небо: document.getElementById('field4').value.trim(),
-                скид: document.getElementById('field5').value.trim(),
-                земля: document.getElementById('field6').value.trim(),
                 бк: [],
                 цілі: []
             };
@@ -863,30 +847,6 @@
             event.квадрат = document.getElementById('field2').value.trim();
             event.координати = document.getElementById('field3').value.trim();
             
-            if (!event.скид && event.небо) {
-                event.скид = event.небо;
-            }
-            
-            if (event.небо && event.скид) {
-                const timeNebo = parseTime(event.небо);
-                const timeSkyd = parseTime(event.скид);
-                
-                if (timeSkyd < timeNebo) {
-                    alert('⚠️ Помилка: Час "Скид" не може бути меншим за "Небо"!');
-                    return;
-                }
-            }
-            
-            if (event.скид && event.земля) {
-                const timeSkyd = parseTime(event.скид);
-                const timeZemlya = parseTime(event.земля);
-                
-                if (timeZemlya < timeSkyd) {
-                    alert('⚠️ Помилка: Час "Земля" не може бути меншим за "Скид"!');
-                    return;
-                }
-            }
-            
             const bkRow = document.querySelector('.bk-row');
             let bkType = bkRow.querySelector('.bk-type').value;
             const bkCount = parseInt(bkRow.querySelector('.bk-count').value) || 0;
@@ -901,7 +861,7 @@
             }
             
             const hasData = event.подія || event.квадрат || event.координати || 
-                           event.небо || event.скид || event.земля || 
+                           event.небо || 
                            event.коментар || event.бк.length > 0;
             
             if (!hasData) {
@@ -952,8 +912,6 @@
             document.getElementById('field2').value = '';
             document.getElementById('field3').value = '';
             document.getElementById('field4').value = '';
-            document.getElementById('field5').value = '';
-            document.getElementById('field6').value = '';
             
             document.getElementById('singleLocation').classList.remove('hidden');
             
@@ -980,6 +938,15 @@
             targetRowCounter = 1;
         }
         
+        function clearCrewInfo() {
+            document.getElementById('positionName').value = '';
+            document.getElementById('positionCoords').value = '';
+            document.getElementById('operator').value = '';
+            document.getElementById('secondPilot').value = '';
+            document.getElementById('navigator').value = '';
+            document.getElementById('engineer').value = '';
+        }
+        
         function updateEventsList() {
             const listDiv = document.getElementById('eventsList');
             const countSpan = document.getElementById('eventsCount');
@@ -1002,9 +969,7 @@
                 html += `<div class="event-field"><strong>квадрат:</strong> ${event.квадрат || '—'}</div>`;
                 html += `<div class="event-field"><strong>координати:</strong> ${event.координати || '—'}</div>`;
                 
-                html += `<div class="event-field"><strong>небо:</strong> ${event.небо || '—'}</div>
-                        <div class="event-field"><strong>скид:</strong> ${event.скид || '—'}</div>
-                        <div class="event-field"><strong>земля:</strong> ${event.земля || '—'}</div>
+                html += `<div class="event-field"><strong>час ураження:</strong> ${event.небо || '—'}</div>
                         <div class="event-field"><strong>бк:</strong> ${formatBK(event.бк)}</div>`;
                 
                 if (event.цілі && event.цілі.length > 0) {
@@ -1110,7 +1075,7 @@
             
             paragraphs.push(new Paragraph({
                 children: [new TextRun({
-                    text: "    ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 1 ББпC 1 ОШП Рота: FPV",
+                    text: "    ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 2 ББпC 1 ОШП Рота: FPV",
                     bold: true,
                     font: "Times New Roman",
                     size: 24
@@ -1447,8 +1412,8 @@
             }));
             
             const sortedEvents = [...events].sort((a, b) => {
-                const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
-                const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
+                const timeA = parseTime(a.небо || '00:00');
+                const timeB = parseTime(b.небо || '00:00');
                 return timeA - timeB;
             });
             
@@ -1514,6 +1479,11 @@
             
             saveAs(blob, `fpv_${positionFileName}_${fileDate}.docx`);
             console.log('DOCX file generated successfully');
+            
+            events = [];
+            updateEventsList();
+            clearForm();
+            clearCrewInfo();
             
             } catch (error) {
                 console.error('Error generating DOCX:', error);
@@ -1593,7 +1563,7 @@
                 p { margin: 2pt 0; }
             </style></head><body>
             
-<p><b>ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 1 ББпC 1 ОШП Рота: FPV</b></p>
+<p><b>ПІДСУМКОВЕ ДОНЕСЕННЯ №_____ 2 ББпC 1 ОШП Рота: FPV</b></p>
 
 <p>1. Час виконання завдання: 16:00 ${yesterdayStr} по 16:00 ${dateStr}.</p>
 
@@ -1680,13 +1650,13 @@
             html += `<p>Протягом звітного періоду з 16:00 ${yesterdayStr}р. по 16:00 ${dateStr}р. було здійснено наступне:</p>\n`;
             
             const sortedEvents = [...events].sort((a, b) => {
-                const timeA = parseTime(a.небо || a.скид || a.земля || '00:00');
-                const timeB = parseTime(b.небо || b.скид || b.земля || '00:00');
+                const timeA = parseTime(a.небо || '00:00');
+                const timeB = parseTime(b.небо || '00:00');
                 return timeA - timeB;
             });
             
             sortedEvents.forEach(event => {
-                const timeText = event.небо || event.скид || event.земля || 'хх:хх';
+                const timeText = event.небо || 'хх:хх';
                 let eventTypeLower = event.подія.toLowerCase();
                 if (eventTypeLower === 'розвідка') {
                     eventTypeLower = 'проведення розвідки';
@@ -1726,11 +1696,16 @@
             
             link.download = `fpv_${positionName}_${fileDate}.doc`;
             link.click();
+            
+            events = [];
+            updateEventsList();
+            clearForm();
+            clearCrewInfo();
         }
         
         window.onload = function() {
             
-            const timeFields = ['field4', 'field5', 'field6'];
+            const timeFields = ['field4'];
             timeFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
                 
